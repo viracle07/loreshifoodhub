@@ -1,26 +1,69 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Loreshi Brand Colors */
+  --loreshi-red: #b22625;
+  --loreshi-red-dark: #8f1d1d;
+  --loreshi-red-light: #f9e5e5;
+
+  --loreshi-green: #68912b;
+  --loreshi-green-dark: #4f7020;
+  --loreshi-green-light: #edf4e4;
+
+  /* Neutrals */
+  --background: #fffdf8;
+  --foreground: #1f1f1f;
+
+  --surface: #ffffff;
+  --surface-muted: #f7f6f1;
+
+  --border: #e7e4dc;
+
+  /* Feedback */
+  --success: #68912b;
+  --warning: #d99000;
+  --danger: #b22625;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
+  margin: 0;
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: var(--loreshi-green-light);
+  color: var(--loreshi-green-dark);
 }
