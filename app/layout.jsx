@@ -1,7 +1,10 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+
 import { FirebaseProvider } from "@/lib/firebase/client-provider";
 import { AuthProvider } from "@/app/context/AuthContext";
+
+import StorefrontHeader from "@/components/layout/StorefrontHeader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,19 +20,28 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: {
-    default: "Loreshi FoodHub | Quality Foodstuff, Delivered",
+    default:
+      "Loreshi FoodHub | Quality Foodstuff, Delivered",
     template: "%s | Loreshi FoodHub",
   },
+
   description:
     "Shop quality Nigerian foodstuff from Loreshi FoodHub and have your order delivered to you.",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable}`}
+    >
       <body>
         <FirebaseProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <StorefrontHeader />
+
+            {children}
+          </AuthProvider>
         </FirebaseProvider>
       </body>
     </html>
