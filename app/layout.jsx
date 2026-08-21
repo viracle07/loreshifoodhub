@@ -5,7 +5,7 @@ import { FirebaseProvider } from "@/lib/firebase/client-provider";
 import { AuthProvider } from "@/app/context/AuthContext";
 
 import StorefrontHeader from "@/components/layout/StorefrontHeader";
-
+import { CartProvider } from "@/components/cart/CartProvider";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -38,9 +38,10 @@ export default function RootLayout({ children }) {
       <body>
         <FirebaseProvider>
           <AuthProvider>
-            <StorefrontHeader />
-
-            {children}
+            <CartProvider>
+              <StorefrontHeader />
+              {children}
+            </CartProvider>
           </AuthProvider>
         </FirebaseProvider>
       </body>

@@ -8,12 +8,15 @@ import {
     User,
     X,
     LogOut,
+    Package,
 } from "lucide-react";
 
 import { useAuth } from "@/app/context/AuthContext";
+import { useCart } from "@/components/cart/CartProvider";
 
 export default function StorefrontHeader() {
     const { user, loading, signOut } = useAuth();
+    const { itemCount } = useCart();
 
     const [mobileOpen, setMobileOpen] =
         useState(false);
@@ -67,14 +70,10 @@ export default function StorefrontHeader() {
     }, []);
 
     const userPhoto =
-        user?.photoURL ||
-        user?.photoUrl ||
-        user?.picture ||
-        "";
+        user?.photoURL || "";
 
     const userName =
         user?.displayName ||
-        user?.name ||
         "Account";
 
     const userEmail =
@@ -162,7 +161,7 @@ export default function StorefrontHeader() {
                                 }
                                 aria-label="Open account menu"
                                 aria-expanded={accountOpen}
-                                className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border-2 border-[#E7E4DC] bg-[#EDF4E4] transition hover:border-[#68912B] focus:outline-none focus:ring-2 focus:ring-[#EDF4E4]"
+                                className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 border-[#E7E4DC] bg-[#EDF4E4] transition hover:border-[#68912B] focus:outline-none focus:ring-2 focus:ring-[#EDF4E4]"
                             >
                                 {userPhoto ? (
                                     <img
@@ -211,14 +210,28 @@ export default function StorefrontHeader() {
                                     </div>
 
                                     <div className="p-2">
+                                        <Link
+                                            href="/account/orders"
+                                            onClick={() =>
+                                                setAccountOpen(false)
+                                            }
+                                            className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold text-[#1F1F1F] transition hover:bg-[#EDF4E4]"
+                                        >
+                                            <Package
+                                                size={17}
+                                                className="text-[#68912B]"
+                                            />
+
+                                            My Orders
+                                        </Link>
+
                                         <button
                                             type="button"
-                                            onClick={
-                                                handleSignOut
-                                            }
+                                            onClick={handleSignOut}
                                             className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold text-[#B22625] transition hover:bg-[#FFF0F0]"
                                         >
                                             <LogOut size={17} />
+
                                             Sign Out
                                         </button>
                                     </div>
@@ -241,10 +254,21 @@ export default function StorefrontHeader() {
                     {/* CART */}
                     <Link
                         href="/cart"
-                        aria-label="Shopping cart"
-                        className="flex h-10 w-10 items-center justify-center rounded-full text-[#1F1F1F] transition hover:bg-[#FFF0F0] hover:text-[#B22625]"
+                        aria-label={`Shopping cart${itemCount > 0
+                                ? `, ${itemCount} items`
+                                : ""
+                            }`}
+                        className="relative flex h-10 w-10 items-center justify-center rounded-full text-[#1F1F1F] transition hover:bg-[#FFF0F0] hover:text-[#B22625]"
                     >
                         <ShoppingCart size={19} />
+
+                        {itemCount > 0 ? (
+                            <span className="absolute right-0 top-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#B22625] px-1 text-[10px] font-bold leading-none text-white ring-2 ring-[#FFFDF8]">
+                                {itemCount > 99
+                                    ? "99+"
+                                    : itemCount}
+                            </span>
+                        ) : null}
                     </Link>
 
                     {/* MOBILE MENU */}

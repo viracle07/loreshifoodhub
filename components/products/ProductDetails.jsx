@@ -5,10 +5,15 @@ import Link from "next/link";
 
 import ProductPrice from "./ProductPrice";
 import { formatPackageLabel } from "@/lib/products/product-utils";
+import { useCart } from "@/components/cart/CartProvider";
+import { useAuth } from "@/app/context/AuthContext";
 
 export default function ProductDetails({
   product,
 }) {
+  const { addToCart } = useCart();
+const { user } = useAuth();
+
   const activeVariants = useMemo(
     () =>
       (product.variants || []).filter(
@@ -36,6 +41,9 @@ export default function ProductDetails({
 
   const [quantity, setQuantity] = useState(1);
 
+  const [addedToCart, setAddedToCart] =
+    useState(false);
+
   const selectedVariant =
     activeVariants.find(
       (variant) =>
@@ -62,22 +70,35 @@ export default function ProductDetails({
     );
   }
 
-  function handleAddToCart() {
-    if (!canBuy) {
-      return;
-    }
+  
 
-    /*
-     * Cart functionality will be connected
-     * when we build the cart milestone.
-     */
-    console.log("Add to cart", {
-      productId: product.id,
-      productName: product.name,
-      variantId: selectedVariant.id,
-      quantity,
-    });
+ function handleAddToCart() {
+  if (!user) {
+    setAddedToCart(false);
+
+    window.alert(
+      "Please sign in to add products to your cart."
+    );
+
+    return;
   }
+
+  if (!canBuy) {
+    return;
+  }
+
+  addToCart({
+    product,
+    variant: selectedVariant,
+    quantity,
+  });
+
+  setAddedToCart(true);
+
+  window.setTimeout(() => {
+    setAddedToCart(false);
+  }, 2000);
+}
 
   return (
     <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
@@ -354,11 +375,17 @@ export default function ProductDetails({
             type="button"
             onClick={handleAddToCart}
             disabled={!canBuy}
-            className="h-12 flex-1 rounded-xl bg-[#B22625] px-6 text-sm font-bold text-white transition hover:bg-[#8F1D1D] disabled:cursor-not-allowed disabled:bg-gray-300"
+            className={`h-12 flex-1 rounded-xl px-6 text-sm font-bold text-white transition ${
+              addedToCart
+                ? "bg-[#68912B]"
+                : "bg-[#B22625] hover:bg-[#8F1D1D]"
+            } disabled:cursor-not-allowed disabled:bg-gray-300`}
           >
-            {canBuy
-              ? "Add to Cart"
-              : "Unavailable"}
+            {addedToCart
+              ? "✓ Added to Cart"
+              : canBuy
+                ? "Add to Cart"
+                : "Unavailable"}
           </button>
         </div>
 

@@ -1,13 +1,28 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 
 import ProductPrice from "./ProductPrice";
 import { formatPackageLabel } from "@/lib/products/product-utils";
+import { useCart } from "@/components/cart/CartProvider";
+import { useAuth } from "@/app/context/AuthContext";
 
 export default function ProductCard({
   product,
 }) {
-  const activeVariants = Array.isArray(product?.variants)
-    ? product.variants.filter((variant) => variant.active !== false)
+  const { addToCart } = useCart();
+  const { user } = useAuth();
+
+  const [added, setAdded] = useState(false);
+
+  const activeVariants = Array.isArray(
+    product?.variants
+  )
+    ? product.variants.filter(
+        (variant) =>
+          variant.active !== false
+      )
     : [];
 
   const firstVariant = activeVariants[0];
@@ -15,8 +30,40 @@ export default function ProductCard({
   const image = product?.images?.[0];
 
   const isOutOfStock =
-    product?.stockStatus === "out_of_stock" ||
-    product?.stockStatus === "discontinued";
+    product?.stockStatus ===
+      "out_of_stock" ||
+    product?.stockStatus ===
+      "discontinued";
+
+  const canAddToCart =
+    Boolean(user) &&
+    Boolean(firstVariant) &&
+    !isOutOfStock;
+
+  function handleAddToCart() {
+    if (!user) {
+      window.alert(
+        "Please sign in to add products to your cart."
+      );
+      return;
+    }
+
+    if (!firstVariant || isOutOfStock) {
+      return;
+    }
+
+    addToCart({
+      product,
+      variant: firstVariant,
+      quantity: 1,
+    });
+
+    setAdded(true);
+
+    window.setTimeout(() => {
+      setAdded(false);
+    }, 2000);
+  }
 
   return (
     <article className="group overflow-hidden rounded-2xl border border-[#E7E4DC] bg-white transition duration-300 hover:-translate-y-1 hover:shadow-lg">
@@ -64,7 +111,8 @@ export default function ProductCard({
 
         <div className="p-4">
           <p className="text-xs font-medium uppercase tracking-[0.12em] text-[#68912B]">
-            {product.categoryName || "Foodstuff"}
+            {product.categoryName ||
+              "Foodstuff"}
           </p>
 
           <h3 className="mt-1 line-clamp-2 text-base font-semibold text-[#1F1F1F]">
@@ -75,12 +123,41 @@ export default function ProductCard({
             <div className="mt-3">
               <ProductPrice
                 price={firstVariant.price}
-                packageLabel={formatPackageLabel(firstVariant)}
+                packageLabel={formatPackageLabel(
+                  firstVariant
+                )}
               />
             </div>
           ) : null}
         </div>
       </Link>
+
+      {/* ADD TO CART */}
+      <div className="px-4 pb-4">
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          disabled={
+            !firstVariant ||
+            isOutOfStock
+          }
+          className={`h-10 w-full rounded-xl text-sm font-bold transition ${
+            added
+              ? "bg-[#68912B] text-white"
+              : canAddToCart
+                ? "bg-[#B22625] text-white hover:bg-[#8F1D1D]"
+                : "bg-gray-200 text-gray-500"
+          } disabled:cursor-not-allowed`}
+        >
+          {added
+            ? "✓ Added to Cart"
+            : isOutOfStock
+              ? "Out of Stock"
+              : !firstVariant
+                ? "Unavailable"
+                : "Add to Cart"}
+        </button>
+      </div>
     </article>
   );
 }
