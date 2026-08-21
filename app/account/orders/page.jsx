@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import { useAuth } from "@/app/context/AuthContext";
+import PayOrderButton from "@/components/orders/PayOrderButton";
 
 function formatNaira(amount) {
   return `₦${Number(amount || 0).toLocaleString(
@@ -60,6 +61,9 @@ function getPaymentClasses(status) {
 
     case "failed":
       return "bg-[#FFF0F0] text-[#B22625]";
+
+    case "processing":
+      return "bg-[#FFF7E6] text-[#A66A00]";
 
     default:
       return "bg-gray-100 text-gray-600";
@@ -301,6 +305,14 @@ export default function OrdersPage() {
                     1
                 );
 
+              const needsPayment =
+                order.paymentStatus !==
+                  "paid" &&
+                order.paymentMethod ===
+                  "online" &&
+                order.status !==
+                  "cancelled";
+
               return (
                 <article
                   key={order.id}
@@ -425,6 +437,33 @@ export default function OrdersPage() {
                         </p>
                       </div>
                     </div>
+
+                    {/* PAYMENT ACTION */}
+                    {needsPayment ? (
+                      <div className="mt-5 rounded-2xl border border-[#F1DEC0] bg-[#FFFAF0] p-4">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <p className="text-sm font-bold text-[#1F1F1F]">
+                              Payment required
+                            </p>
+
+                            <p className="mt-1 text-xs text-gray-500">
+                              Complete payment to confirm
+                              this order.
+                            </p>
+                          </div>
+
+                          <PayOrderButton
+                            orderId={order.id}
+                            onError={(message) =>
+                              setError(
+                                message
+                              )
+                            }
+                          />
+                        </div>
+                      </div>
+                    ) : null}
 
                     <div className="mt-5 flex justify-end">
                       <Link

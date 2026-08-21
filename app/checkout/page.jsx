@@ -10,6 +10,7 @@ import {
     Phone,
     Mail,
     FileText,
+    CreditCard,
 } from "lucide-react";
 
 import { useCart } from "@/components/cart/CartProvider";
@@ -44,6 +45,9 @@ export default function CheckoutPage() {
 
     const [submitError, setSubmitError] =
         useState("");
+
+    const [paymentMethod, setPaymentMethod] =
+        useState("online");
 
 
     function handleChange(event) {
@@ -100,27 +104,94 @@ export default function CheckoutPage() {
         );
     }
 
-    async function handleSubmit(event) {
-        event.preventDefault();
+  async function handleSubmit(event) {
+    event.preventDefault();
 
-        setSubmitError("");
+    setSubmitError("");
 
-        if (!validateForm()) {
-            return;
-        }
+    if (!validateForm()) {
+        return;
+    }
 
-        if (!items.length) {
-            setSubmitError(
-                "Your cart is empty."
+    if (!items.length) {
+        setSubmitError(
+            "Your cart is empty."
+        );
+        return;
+    }
+
+    try {
+        setSubmitting(true);
+
+        /*
+         * STEP 1
+         * Create the order.
+         */
+        const response = await fetch(
+            "/api/orders",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                        "application/json",
+                },
+                body: JSON.stringify({
+                    customer: {
+                        name: form.name,
+                        phone: form.phone,
+                        email: form.email,
+                    },
+
+                    delivery: {
+                        address: form.address,
+                        city: form.city,
+                        state: form.state,
+                        notes: form.notes,
+                    },
+
+                    paymentMethod,
+
+                    items: items.map((item) => ({
+                        productId:
+                            item.productId,
+                        variantId:
+                            item.variantId,
+                        quantity:
+                            item.quantity,
+                    })),
+                }),
+            }
+        );
+
+        const data =
+            await response.json();
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+            throw new Error(
+                data.error ||
+                    "Unable to create your order."
             );
-            return;
         }
 
-        try {
-            setSubmitting(true);
+        const orderId =
+            data.order?.id;
 
-            const response = await fetch(
-                "/api/orders",
+        if (!orderId) {
+            throw new Error(
+                "Order was created but no order ID was returned."
+            );
+        }
+
+        /*
+         * STEP 2
+         * Initialize Paystack payment.
+         */
+        const paymentResponse =
+            await fetch(
+                "/api/payments/initialize",
                 {
                     method: "POST",
                     headers: {
@@ -128,65 +199,46 @@ export default function CheckoutPage() {
                             "application/json",
                     },
                     body: JSON.stringify({
-                        customer: {
-                            name: form.name,
-                            phone: form.phone,
-                            email: form.email,
-                        },
-
-                        delivery: {
-                            address: form.address,
-                            city: form.city,
-                            state: form.state,
-                            notes: form.notes,
-                        },
-
-                        items: items.map((item) => ({
-                            productId: item.productId,
-                            variantId: item.variantId,
-                            quantity: item.quantity,
-                        })),
+                        orderId,
                     }),
                 }
             );
 
-            const data =
-                await response.json();
+        const paymentData =
+            await paymentResponse.json();
 
-            if (
-                !response.ok ||
-                !data.success
-            ) {
-                throw new Error(
-                    data.error ||
-                    "Unable to create your order."
-                );
-            }
-
-            /*
-             * Order successfully created.
-             *
-             * We'll redirect to the order
-             * confirmation page next.
-             */
-            window.location.href =
-                `/order-success?order=${encodeURIComponent(
-                    data.order.orderNumber
-                )}`;
-        } catch (error) {
-            console.error(
-                "Checkout error:",
-                error
+        if (
+            !paymentResponse.ok ||
+            !paymentData.success ||
+            !paymentData.payment
+                ?.authorizationUrl
+        ) {
+            throw new Error(
+                paymentData.error ||
+                    "Unable to initialize payment."
             );
-
-            setSubmitError(
-                error.message ||
-                "Unable to create your order. Please try again."
-            );
-        } finally {
-            setSubmitting(false);
         }
+
+        /*
+         * STEP 3
+         * Send customer to Paystack.
+         */
+        window.location.href =
+            paymentData.payment.authorizationUrl;
+    } catch (error) {
+        console.error(
+            "Checkout error:",
+            error
+        );
+
+        setSubmitError(
+            error.message ||
+                "Unable to complete checkout. Please try again."
+        );
+
+        setSubmitting(false);
     }
+}
 
     if (
         !hydrated ||
@@ -358,8 +410,8 @@ export default function CheckoutPage() {
                                         onChange={handleChange}
                                         placeholder="Your full name"
                                         className={`mt-2 h-12 w-full rounded-xl border bg-white px-4 text-sm text-[#1F1F1F] outline-none transition placeholder:text-gray-400 focus:border-[#68912B] focus:ring-2 focus:ring-[#EDF4E4] ${errors.name
-                                                ? "border-[#B22625]"
-                                                : "border-[#E7E4DC]"
+                                            ? "border-[#B22625]"
+                                            : "border-[#E7E4DC]"
                                             }`}
                                     />
 
@@ -388,8 +440,8 @@ export default function CheckoutPage() {
                                         onChange={handleChange}
                                         placeholder="08012345678"
                                         className={`mt-2 h-12 w-full rounded-xl border bg-white px-4 text-sm text-[#1F1F1F] outline-none transition placeholder:text-gray-400 focus:border-[#68912B] focus:ring-2 focus:ring-[#EDF4E4] ${errors.phone
-                                                ? "border-[#B22625]"
-                                                : "border-[#E7E4DC]"
+                                            ? "border-[#B22625]"
+                                            : "border-[#E7E4DC]"
                                             }`}
                                     />
 
@@ -418,8 +470,8 @@ export default function CheckoutPage() {
                                         onChange={handleChange}
                                         placeholder="you@example.com"
                                         className={`mt-2 h-12 w-full rounded-xl border bg-white px-4 text-sm text-[#1F1F1F] outline-none transition placeholder:text-gray-400 focus:border-[#68912B] focus:ring-2 focus:ring-[#EDF4E4] ${errors.email
-                                                ? "border-[#B22625]"
-                                                : "border-[#E7E4DC]"
+                                            ? "border-[#B22625]"
+                                            : "border-[#E7E4DC]"
                                             }`}
                                     />
 
@@ -472,8 +524,8 @@ export default function CheckoutPage() {
                                         rows={3}
                                         placeholder="House number, street, area..."
                                         className={`mt-2 w-full resize-none rounded-xl border bg-white px-4 py-3 text-sm text-[#1F1F1F] outline-none transition placeholder:text-gray-400 focus:border-[#68912B] focus:ring-2 focus:ring-[#EDF4E4] ${errors.address
-                                                ? "border-[#B22625]"
-                                                : "border-[#E7E4DC]"
+                                            ? "border-[#B22625]"
+                                            : "border-[#E7E4DC]"
                                             }`}
                                     />
 
@@ -502,8 +554,8 @@ export default function CheckoutPage() {
                                             onChange={handleChange}
                                             placeholder="Lagos"
                                             className={`mt-2 h-12 w-full rounded-xl border bg-white px-4 text-sm text-[#1F1F1F] outline-none transition placeholder:text-gray-400 focus:border-[#68912B] focus:ring-2 focus:ring-[#EDF4E4] ${errors.city
-                                                    ? "border-[#B22625]"
-                                                    : "border-[#E7E4DC]"
+                                                ? "border-[#B22625]"
+                                                : "border-[#E7E4DC]"
                                                 }`}
                                         />
 
@@ -530,8 +582,8 @@ export default function CheckoutPage() {
                                             onChange={handleChange}
                                             placeholder="Lagos State"
                                             className={`mt-2 h-12 w-full rounded-xl border bg-white px-4 text-sm text-[#1F1F1F] outline-none transition placeholder:text-gray-400 focus:border-[#68912B] focus:ring-2 focus:ring-[#EDF4E4] ${errors.state
-                                                    ? "border-[#B22625]"
-                                                    : "border-[#E7E4DC]"
+                                                ? "border-[#B22625]"
+                                                : "border-[#E7E4DC]"
                                                 }`}
                                         />
 
@@ -566,6 +618,65 @@ export default function CheckoutPage() {
                                         className="mt-2 w-full resize-none rounded-xl border border-[#E7E4DC] bg-white px-4 py-3 text-sm text-[#1F1F1F] outline-none transition placeholder:text-gray-400 focus:border-[#68912B] focus:ring-2 focus:ring-[#EDF4E4]"
                                     />
                                 </div>
+                            </div>
+                        </section>
+
+                        {/* PAYMENT METHOD */}
+                        <section className="rounded-3xl border border-[#E7E4DC] bg-white p-5 sm:p-6">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#EDF4E4]">
+                                    <CreditCard
+                                        size={19}
+                                        className="text-[#68912B]"
+                                    />
+                                </div>
+
+                                <div>
+                                    <h2 className="text-base font-bold text-[#1F1F1F]">
+                                        Payment Method
+                                    </h2>
+
+                                    <p className="text-xs text-gray-500">
+                                        Choose how you would like to pay.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setPaymentMethod("online")
+                                    }
+                                    className={`w-full rounded-2xl border p-4 text-left transition ${paymentMethod === "online"
+                                        ? "border-[#68912B] bg-[#EDF4E4] ring-2 ring-[#EDF4E4]"
+                                        : "border-[#E7E4DC] bg-white hover:border-[#68912B]"
+                                        }`}
+                                >
+                                    <div className="flex items-start gap-4">
+                                        <span
+                                            className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${paymentMethod === "online"
+                                                ? "border-[#68912B] bg-[#68912B]"
+                                                : "border-gray-300 bg-white"
+                                                }`}
+                                        >
+                                            {paymentMethod === "online" ? (
+                                                <span className="h-2 w-2 rounded-full bg-white" />
+                                            ) : null}
+                                        </span>
+
+                                        <div>
+                                            <p className="text-sm font-bold text-[#1F1F1F]">
+                                                Online Payment
+                                            </p>
+
+                                            <p className="mt-1 text-xs leading-5 text-gray-500">
+                                                Pay securely online using your available
+                                                payment options.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </button>
                             </div>
                         </section>
                     </div>
@@ -672,23 +783,23 @@ export default function CheckoutPage() {
                             </div>
                         ) : null}
 
-                       <button
-  type="submit"
-  disabled={submitting}
-  className="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#B22625] px-5 text-sm font-bold text-white transition hover:bg-[#8F1D1D] disabled:cursor-not-allowed disabled:bg-gray-300"
->
-  {submitting ? (
-    <>
-      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-      Creating Order...
-    </>
-  ) : (
-    <>
-      Place Order
-      <ArrowRight size={17} />
-    </>
-  )}
-</button>
+                        <button
+                            type="submit"
+                            disabled={submitting}
+                            className="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#B22625] px-5 text-sm font-bold text-white transition hover:bg-[#8F1D1D] disabled:cursor-not-allowed disabled:bg-gray-300"
+                        >
+                            {submitting ? (
+                                <>
+                                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                    Creating Order...
+                                </>
+                            ) : (
+                                <>
+                                    Place Order
+                                    <ArrowRight size={17} />
+                                </>
+                            )}
+                        </button>
 
                         <p className="mt-4 text-center text-xs leading-5 text-gray-500">
                             Your order will be reviewed before
@@ -697,7 +808,9 @@ export default function CheckoutPage() {
                         </p>
                     </aside>
                 </form>
+
             </div>
+
         </main>
     );
 }

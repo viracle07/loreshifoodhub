@@ -34,6 +34,10 @@ export async function POST(request) {
 
     const customer = body?.customer || {};
     const delivery = body?.delivery || {};
+    const paymentMethod =
+  cleanString(
+    body?.paymentMethod
+  ) || "online";
     const submittedItems =
       Array.isArray(body?.items)
         ? body.items
@@ -142,6 +146,17 @@ const notes = cleanString(
         { status: 400 }
       );
     }
+
+    if (paymentMethod !== "online") {
+  return NextResponse.json(
+    {
+      success: false,
+      error:
+        "Invalid payment method.",
+    },
+    { status: 400 }
+  );
+}
 
     /*
      * 5. Re-read products from Firestore
@@ -379,7 +394,7 @@ const notes = cleanString(
 
       paymentStatus: "unpaid",
 
-      paymentMethod: null,
+      paymentMethod,
 
       createdAt:
         FieldValue.serverTimestamp(),

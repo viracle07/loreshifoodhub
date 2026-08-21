@@ -1,5 +1,7 @@
 "use client";
 
+import PayOrderButton from "@/components/orders/PayOrderButton";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
@@ -590,6 +592,19 @@ export default function OrderDetailsPage({
                 confirmed.
               </p>
             </div>
+
+            {order.paymentStatus !== "paid" &&
+order.status !== "cancelled" &&
+order.paymentMethod === "online" ? (
+  <div className="mt-5">
+    <PayOrderButton
+      orderId={order.id}
+      onError={(message) =>
+        setError(message)
+      }
+    />
+  </div>
+) : null}
 
             <Link
               href="/account/orders"
