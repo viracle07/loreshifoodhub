@@ -3,7 +3,7 @@ import { FieldValue } from "firebase-admin/firestore";
 
 import { adminDb } from "@/lib/firebase/admin";
 import { createCategorySlug } from "@/lib/products/category-utils";
-import { getCurrentUser } from "@/lib/auth/session";
+import { getCurrentAdmin } from "@/lib/auth/admin-auth";
 
 export async function GET() {
   try {
@@ -13,20 +13,26 @@ export async function GET() {
       .orderBy("sortOrder", "asc")
       .get();
 
-    const categories = snapshot.docs.map((doc) => {
-      const data = doc.data();
+    const categories = snapshot.docs.map(
+      (doc) => {
+        const data = doc.data();
 
-      return {
-        id: doc.id,
-        ...data,
-        createdAt:
-          data.createdAt?.toDate?.()?.toISOString() ??
-          null,
-        updatedAt:
-          data.updatedAt?.toDate?.()?.toISOString() ??
-          null,
-      };
-    });
+        return {
+          id: doc.id,
+          ...data,
+
+          createdAt:
+            data.createdAt
+              ?.toDate?.()
+              ?.toISOString() ?? null,
+
+          updatedAt:
+            data.updatedAt
+              ?.toDate?.()
+              ?.toISOString() ?? null,
+        };
+      }
+    );
 
     return NextResponse.json({
       success: true,
@@ -41,7 +47,8 @@ export async function GET() {
     return NextResponse.json(
       {
         success: false,
-        error: "Unable to load categories.",
+        error:
+          "Unable to load categories.",
       },
       { status: 500 }
     );
@@ -50,67 +57,75 @@ export async function GET() {
 
 export async function POST(request) {
   try {
-    const currentUser = await getCurrentUser();
+    /*
+     * ADMIN AUTHENTICATION
+     */
+    const currentAdmin =
+      await getCurrentAdmin();
 
-    if (!currentUser) {
+    if (!currentAdmin) {
       return NextResponse.json(
         {
           success: false,
-          error: "Unauthorized.",
-        },
-        { status: 401 }
-      );
-    }
-
-    if (currentUser.role !== "admin") {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Forbidden.",
+          error:
+            "Admin authentication required.",
         },
         { status: 403 }
       );
     }
 
-    const body = await request.json();
+    /*
+     * REQUEST BODY
+     */
+    const body =
+      await request.json();
 
-    const name = body?.name?.trim();
-
-    const description =
-      body?.description?.trim() || "";
-
-    const imageUrl =
-      body?.imageUrl?.trim() || "";
+    const name =
+      body?.name?.trim();
 
     const requestedId =
       body?.id?.trim() || "";
 
-    const sortOrder = Number.isFinite(
-      body?.sortOrder
-    )
-      ? body.sortOrder
-      : 0;
+    const sortOrder =
+      Number.isFinite(
+        body?.sortOrder
+      )
+        ? Number(body.sortOrder)
+        : 0;
 
+    /*
+     * VALIDATION
+     */
     if (!name) {
       return NextResponse.json(
         {
           success: false,
-          error: "Category name is required.",
+          error:
+            "Category name is required.",
         },
         { status: 400 }
       );
     }
 
-    const slug = createCategorySlug(name);
+    /*
+     * CREATE SLUG
+     */
+    const slug =
+      createCategorySlug(name);
 
     /*
-     * Prevent duplicate category slugs.
+     * PREVENT DUPLICATE SLUGS
      */
-    const existing = await adminDb
-      .collection("categories")
-      .where("slug", "==", slug)
-      .limit(1)
-      .get();
+    const existing =
+      await adminDb
+        .collection("categories")
+        .where(
+          "slug",
+          "==",
+          slug
+        )
+        .limit(1)
+        .get();
 
     if (!existing.empty) {
       return NextResponse.json(
@@ -124,24 +139,26 @@ export async function POST(request) {
     }
 
     /*
-     * Use the supplied ID when provided.
+     * CATEGORY DOCUMENT
      *
-     * This allows our existing product categoryId
-     * values such as "grains" and "fish-seafood"
-     * to match the category documents.
-     *
-     * If no ID is supplied, Firestore generates one.
+     * If an ID is supplied, use it.
+     * Otherwise Firestore generates one.
      */
-    const categoryRef = requestedId
-      ? adminDb
-          .collection("categories")
-          .doc(requestedId)
-      : adminDb
-          .collection("categories")
-          .doc();
+    const categoryRef =
+      requestedId
+        ? adminDb
+            .collection(
+              "categories"
+            )
+            .doc(requestedId)
+        : adminDb
+            .collection(
+              "categories"
+            )
+            .doc();
 
     /*
-     * Prevent duplicate document IDs.
+     * PREVENT DUPLICATE IDs
      */
     const existingId =
       await categoryRef.get();
@@ -157,28 +174,35 @@ export async function POST(request) {
       );
     }
 
+    /*
+     * CREATE CATEGORY
+     */
     await categoryRef.set({
       name,
       slug,
-      description,
-      imageUrl,
+
       active: true,
+
       sortOrder,
+
       createdAt:
         FieldValue.serverTimestamp(),
+
       updatedAt:
         FieldValue.serverTimestamp(),
     });
 
+    /*
+     * RESPONSE
+     */
     return NextResponse.json(
       {
         success: true,
+
         category: {
           id: categoryRef.id,
           name,
           slug,
-          description,
-          imageUrl,
           active: true,
           sortOrder,
         },
@@ -194,7 +218,8 @@ export async function POST(request) {
     return NextResponse.json(
       {
         success: false,
-        error: "Unable to create category.",
+        error:
+          "Unable to create category.",
       },
       { status: 500 }
     );
