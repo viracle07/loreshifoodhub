@@ -5,6 +5,12 @@ import HowItWorks from "@/components/home/HowItWorks";
 import CustomerReviews from "@/components/home/CustomerReviews";
 import ContactSection from "@/components/home/ContactSection";
 
+
+import {
+  FadeUp,
+  ScaleIn,
+} from "@/components/home/HomeMotion";
+
 import {
   getFeaturedProducts,
   getHotProducts,
@@ -69,104 +75,118 @@ export default async function Home() {
             <div className="relative z-10 max-w-2xl">
 
               {/* SMALL BADGE */}
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#D8DFB9] bg-white px-4 py-2 shadow-sm">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EDF4E4]">
-                  🌿
-                </span>
+              <FadeUp delay={0.05}>
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#D8DFB9] bg-white px-4 py-2 shadow-sm">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EDF4E4]">
+                    🌿
+                  </span>
 
-                <span className="text-xs font-bold uppercase tracking-[0.12em] text-[#68912B]">
-                  100% Quality • Natural • Fresh
-                </span>
-              </div>
+                  <span className="text-xs font-bold uppercase tracking-[0.12em] text-[#68912B]">
+                    100% Quality • Natural • Fresh
+                  </span>
+                </div>
+              </FadeUp>
 
               {/* HEADLINE */}
-              <h1 className="mt-6 text-4xl font-black leading-[1.05] tracking-tight text-[#1F1F1F] sm:text-5xl lg:text-6xl xl:text-7xl">
-                Quality foodstuff.
-                <br />
+              <FadeUp delay={0.15}>
+                <h1 className="mt-6 text-4xl font-black leading-[1.05] tracking-tight text-[#1F1F1F] sm:text-5xl lg:text-6xl xl:text-7xl">
+                  Quality foodstuff.
+                  <br />
 
-                <span className="text-[#B22625]">
-                  For everyday life.
-                </span>
-              </h1>
+                  <span className="text-[#B22625]">
+                    For everyday life.
+                  </span>
+                </h1>
+              </FadeUp>
 
               {/* DESCRIPTION */}
-              <p className="mt-6 max-w-xl text-base leading-7 text-gray-600 sm:text-lg">
-                Premium Nigerian foodstuff sourced with care
-                and delivered conveniently to your doorstep.
-              </p>
+              <FadeUp delay={0.25}>
+                <p className="mt-6 max-w-xl text-base leading-7 text-gray-600 sm:text-lg">
+                  Premium Nigerian foodstuff sourced with care
+                  and delivered conveniently to your doorstep.
+                </p>
+              </FadeUp>
 
               {/* CTA BUTTONS */}
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <FadeUp delay={0.35}>
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
 
-                <a
-                  href="#products"
-                  className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#B22625] px-7 text-sm font-bold text-white shadow-sm transition hover:bg-[#8F1D1D] hover:shadow-md"
-                >
-                  🛒 Shop Now
-                </a>
+                  <a
+                    href="#products"
+                    className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#B22625] px-7 text-sm font-bold text-white shadow-sm transition hover:bg-[#8F1D1D] hover:shadow-md"
+                  >
+                    🛒 Shop Now
+                  </a>
 
-                <a
-                  href="/products"
-                  className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-[#D8D5C9] bg-white px-7 text-sm font-bold text-[#68912B] transition hover:border-[#68912B] hover:bg-[#EDF4E4]"
-                >
-                  Explore Products
-                  <span aria-hidden="true">→</span>
-                </a>
+                  <a
+                    href="/products"
+                    className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-[#D8D5C9] bg-white px-7 text-sm font-bold text-[#68912B] transition hover:border-[#68912B] hover:bg-[#EDF4E4]"
+                  >
+                    Explore Products
+                    <span aria-hidden="true">→</span>
+                  </a>
 
-              </div>
+                </div>
+              </FadeUp>
 
               {/* TRUST FEATURES */}
-              <div className="mt-9 grid max-w-xl grid-cols-3 gap-3 border-t border-[#E7E4DC] pt-6">
+              <FadeUp delay={0.45}>
+                <div className="mt-9 grid max-w-xl grid-cols-3 gap-3 border-t border-[#E7E4DC] pt-6">
 
-                <div>
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EDF4E4]">
-                    ✓
+                  <div>
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EDF4E4]">
+                      ✓
+                    </div>
+
+                    <p className="mt-2 text-xs font-bold text-[#1F1F1F] sm:text-sm">
+                      Quality Products
+                    </p>
+
+                    <p className="mt-1 text-[10px] leading-4 text-gray-500 sm:text-xs">
+                      Sourced with care
+                    </p>
                   </div>
 
-                  <p className="mt-2 text-xs font-bold text-[#1F1F1F] sm:text-sm">
-                    Quality Products
-                  </p>
+                  <div>
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FFF7E6]">
+                      ⚡
+                    </div>
 
-                  <p className="mt-1 text-[10px] leading-4 text-gray-500 sm:text-xs">
-                    Sourced with care
-                  </p>
-                </div>
+                    <p className="mt-2 text-xs font-bold text-[#1F1F1F] sm:text-sm">
+                      Easy Ordering
+                    </p>
 
-                <div>
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FFF7E6]">
-                    ⚡
+                    <p className="mt-1 text-[10px] leading-4 text-gray-500 sm:text-xs">
+                      Quick & secure
+                    </p>
                   </div>
 
-                  <p className="mt-2 text-xs font-bold text-[#1F1F1F] sm:text-sm">
-                    Easy Ordering
-                  </p>
+                  <div>
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FFF0F0]">
+                      🚚
+                    </div>
 
-                  <p className="mt-1 text-[10px] leading-4 text-gray-500 sm:text-xs">
-                    Quick & secure
-                  </p>
-                </div>
+                    <p className="mt-2 text-xs font-bold text-[#1F1F1F] sm:text-sm">
+                      Safe Delivery
+                    </p>
 
-                <div>
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FFF0F0]">
-                    🚚
+                    <p className="mt-1 text-[10px] leading-4 text-gray-500 sm:text-xs">
+                      To your doorstep
+                    </p>
                   </div>
 
-                  <p className="mt-2 text-xs font-bold text-[#1F1F1F] sm:text-sm">
-                    Safe Delivery
-                  </p>
-
-                  <p className="mt-1 text-[10px] leading-4 text-gray-500 sm:text-xs">
-                    To your doorstep
-                  </p>
                 </div>
-
-              </div>
+              </FadeUp>
             </div>
 
             {/* =========================================
           HERO FOOD VISUAL
       ========================================= */}
-            <div className="relative -mt-8 sm:-mt-10 lg:-mt-14">
+
+            <ScaleIn
+              delay={0.2}
+              className="relative -mt-8 sm:-mt-10 lg:-mt-14"
+            >
 
               {/* Soft background shape */}
               <div
@@ -202,7 +222,7 @@ export default async function Home() {
               </div>
 
 
-            </div>
+            </ScaleIn>
           </div>
         </div>
 
@@ -271,7 +291,7 @@ export default async function Home() {
 
 
       <ContactSection />
-      
-    </main>
+
+    </main >
   );
 }

@@ -1,6 +1,19 @@
-import AdminSidebar from "@/components/admin/AdminSidebar";
+import { redirect } from "next/navigation";
 
-export default function AdminLayout({ children }) {
+import AdminSidebar from "@/components/admin/AdminSidebar";
+import { getCurrentAdmin } from "@/lib/auth/admin-auth";
+export default async function AdminLayout({
+  children,
+}) {
+  const admin =
+    await getCurrentAdmin();
+
+  if (!admin) {
+    redirect(
+      "/admin-login"
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#FFFDF8]">
       <AdminSidebar />

@@ -60,7 +60,7 @@ export default function AdminLoginPage() {
        * Create the secure server session.
        */
       const response = await fetch(
-        "/api/auth/session",
+  "/api/auth/admin-session",
         {
           method: "POST",
           headers: {
