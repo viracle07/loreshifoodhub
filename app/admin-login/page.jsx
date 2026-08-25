@@ -60,7 +60,7 @@ export default function AdminLoginPage() {
        * Create the secure server session.
        */
       const response = await fetch(
-  "/api/auth/admin-session",
+        "/api/auth/admin-session",
         {
           method: "POST",
           headers: {
@@ -73,18 +73,38 @@ export default function AdminLoginPage() {
         }
       );
 
-      const data =
-        await response.json();
+      const responseText =
+  await response.text();
 
-      if (
-        !response.ok ||
-        !data.success
-      ) {
-        throw new Error(
-          data.error ||
-            "Unable to create admin session."
-        );
-      }
+console.log(
+  "SESSION STATUS:",
+  response.status
+);
+
+console.log(
+  "SESSION RESPONSE:",
+  responseText
+);
+
+let data;
+
+try {
+  data = JSON.parse(responseText);
+} catch {
+  throw new Error(
+    "The server returned an invalid response."
+  );
+}
+
+if (
+  !response.ok ||
+  !data.success
+) {
+  throw new Error(
+    data.error ||
+      "Unable to create admin session."
+  );
+}
 
       /*
        * IMPORTANT:
