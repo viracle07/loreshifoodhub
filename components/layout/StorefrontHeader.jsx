@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -80,67 +81,94 @@ export default function StorefrontHeader() {
         user?.email || "";
 
     return (
-        <header className="sticky top-0 z-40 border-b border-[#E7E4DC] bg-[#FFFDF8]/95 backdrop-blur">
+        <header className="sticky top-0 z-40 border-b border-[#E7E4DC] bg-[#FFFDF8]/95 shadow-[0_2px_12px_rgba(31,31,31,0.04)] backdrop-blur">
+
+            {/* SUBTLE TOP ACCENT */}
+            <div className="h-[3px] bg-gradient-to-r from-[#68912B] via-[#B8D58C] to-[#B22625]" />
+
             <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-6 lg:px-8">
 
-                {/* LOGO */}
+                {/* =========================================
+                    LOGO
+                ========================================= */}
                 <Link
                     href="/"
                     onClick={closeMobileMenu}
-                    className="flex items-center gap-2"
+                    className="group flex items-center gap-2.5"
                 >
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#EDF4E4]">
-                        <span
-                            className="text-lg"
-                            aria-hidden="true"
-                        >
-                            🍎
-                        </span>
+                    <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-[#E7E4DC] bg-white shadow-sm transition duration-200 group-hover:border-[#68912B] group-hover:shadow-md">
+                        <Image
+                            src="/loreshi-logo.png"
+                            alt="Loreshi FoodHub"
+                            width={80}
+                            height={80}
+                            priority
+                            className="h-full w-full object-contain p-0.5"
+                        />
                     </div>
 
-                    <div>
-                        <p className="text-sm font-bold leading-tight text-[#1F1F1F]">
+                    <div className="leading-none">
+                        <p className="text-sm font-black tracking-tight text-[#1F1F1F]">
                             Loreshi
                         </p>
 
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#68912B]">
+                        <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#68912B]">
                             FoodHub
                         </p>
                     </div>
                 </Link>
 
-                {/* DESKTOP NAV */}
-                <nav className="hidden items-center gap-7 md:flex">
+                {/* =========================================
+                    DESKTOP NAV
+                ========================================= */}
+                <nav className="hidden items-center gap-1 rounded-full border border-[#E7E4DC] bg-white/70 p-1 md:flex">
+
                     <Link
                         href="/"
-                        className="text-sm font-semibold text-[#1F1F1F] transition hover:text-[#B22625]"
+                        className="group relative rounded-full px-4 py-2 text-sm font-semibold text-[#1F1F1F] transition duration-200 hover:bg-[#EDF4E4] hover:text-[#68912B]"
                     >
                         Home
+
+                        <span className="absolute bottom-1 left-1/2 h-0.5 w-0 -translate-x-1/2 rounded-full bg-[#68912B] transition-all duration-200 group-hover:w-5" />
                     </Link>
 
                     <Link
                         href="/products"
-                        className="text-sm font-semibold text-[#1F1F1F] transition hover:text-[#B22625]"
+                        className="group relative rounded-full px-4 py-2 text-sm font-semibold text-[#1F1F1F] transition duration-200 hover:bg-[#EDF4E4] hover:text-[#68912B]"
                     >
                         Products
+
+                        <span className="absolute bottom-1 left-1/2 h-0.5 w-0 -translate-x-1/2 rounded-full bg-[#68912B] transition-all duration-200 group-hover:w-5" />
                     </Link>
 
                     <Link
                         href="/products?new=true"
-                        className="text-sm font-semibold text-[#1F1F1F] transition hover:text-[#B22625]"
+                        className="group relative rounded-full px-4 py-2 text-sm font-semibold text-[#1F1F1F] transition duration-200 hover:bg-[#EDF4E4] hover:text-[#68912B]"
                     >
+                        <span className="mr-1 text-[#68912B]">
+                            ✦
+                        </span>
                         New
+
+                        <span className="absolute bottom-1 left-1/2 h-0.5 w-0 -translate-x-1/2 rounded-full bg-[#68912B] transition-all duration-200 group-hover:w-5" />
                     </Link>
 
                     <Link
                         href="/products?hot=true"
-                        className="text-sm font-semibold text-[#1F1F1F] transition hover:text-[#B22625]"
+                        className="group relative rounded-full px-4 py-2 text-sm font-semibold text-[#1F1F1F] transition duration-200 hover:bg-[#FFF0F0] hover:text-[#B22625]"
                     >
+                        <span className="mr-1">
+                            🔥
+                        </span>
                         Hot
+
+                        <span className="absolute bottom-1 left-1/2 h-0.5 w-0 -translate-x-1/2 rounded-full bg-[#B22625] transition-all duration-200 group-hover:w-5" />
                     </Link>
                 </nav>
 
-                {/* ACTIONS */}
+                {/* =========================================
+                    ACTIONS
+                ========================================= */}
                 <div className="flex items-center gap-1">
 
                     {/* ACCOUNT */}
@@ -160,7 +188,9 @@ export default function StorefrontHeader() {
                                     )
                                 }
                                 aria-label="Open account menu"
-                                aria-expanded={accountOpen}
+                                aria-expanded={
+                                    accountOpen
+                                }
                                 className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 border-[#E7E4DC] bg-[#EDF4E4] transition hover:border-[#68912B] focus:outline-none focus:ring-2 focus:ring-[#EDF4E4]"
                             >
                                 {userPhoto ? (
@@ -180,17 +210,22 @@ export default function StorefrontHeader() {
                             {/* ACCOUNT DROPDOWN */}
                             {accountOpen ? (
                                 <div className="absolute right-0 top-12 z-50 w-64 overflow-hidden rounded-2xl border border-[#E7E4DC] bg-white shadow-xl">
+
                                     <div className="flex items-center gap-3 border-b border-[#E7E4DC] p-4">
                                         <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#EDF4E4]">
                                             {userPhoto ? (
                                                 <img
                                                     src={userPhoto}
-                                                    alt={userName}
+                                                    alt={
+                                                        userName
+                                                    }
                                                     className="h-full w-full object-cover"
                                                 />
                                             ) : (
                                                 <User
-                                                    size={18}
+                                                    size={
+                                                        18
+                                                    }
                                                     className="text-[#68912B]"
                                                 />
                                             )}
@@ -198,12 +233,16 @@ export default function StorefrontHeader() {
 
                                         <div className="min-w-0">
                                             <p className="truncate text-sm font-bold text-[#1F1F1F]">
-                                                {userName}
+                                                {
+                                                    userName
+                                                }
                                             </p>
 
                                             {userEmail ? (
                                                 <p className="truncate text-xs text-gray-500">
-                                                    {userEmail}
+                                                    {
+                                                        userEmail
+                                                    }
                                                 </p>
                                             ) : null}
                                         </div>
@@ -213,12 +252,16 @@ export default function StorefrontHeader() {
                                         <Link
                                             href="/account/orders"
                                             onClick={() =>
-                                                setAccountOpen(false)
+                                                setAccountOpen(
+                                                    false
+                                                )
                                             }
                                             className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold text-[#1F1F1F] transition hover:bg-[#EDF4E4]"
                                         >
                                             <Package
-                                                size={17}
+                                                size={
+                                                    17
+                                                }
                                                 className="text-[#68912B]"
                                             />
 
@@ -227,10 +270,16 @@ export default function StorefrontHeader() {
 
                                         <button
                                             type="button"
-                                            onClick={handleSignOut}
+                                            onClick={
+                                                handleSignOut
+                                            }
                                             className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold text-[#B22625] transition hover:bg-[#FFF0F0]"
                                         >
-                                            <LogOut size={17} />
+                                            <LogOut
+                                                size={
+                                                    17
+                                                }
+                                            />
 
                                             Sign Out
                                         </button>
@@ -247,17 +296,21 @@ export default function StorefrontHeader() {
                             className="flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-bold text-[#1F1F1F] transition hover:bg-[#EDF4E4] hover:text-[#68912B] md:px-4 md:text-sm"
                         >
                             <User size={17} />
-                            <span>Sign In</span>
+
+                            <span>
+                                Sign In
+                            </span>
                         </Link>
                     )}
 
                     {/* CART */}
                     <Link
                         href="/cart"
-                        aria-label={`Shopping cart${itemCount > 0
+                        aria-label={`Shopping cart${
+                            itemCount > 0
                                 ? `, ${itemCount} items`
                                 : ""
-                            }`}
+                        }`}
                         className="relative flex h-10 w-10 items-center justify-center rounded-full text-[#1F1F1F] transition hover:bg-[#FFF0F0] hover:text-[#B22625]"
                     >
                         <ShoppingCart size={19} />
@@ -285,7 +338,9 @@ export default function StorefrontHeader() {
                                 ? "Close menu"
                                 : "Open menu"
                         }
-                        aria-expanded={mobileOpen}
+                        aria-expanded={
+                            mobileOpen
+                        }
                         className="flex h-10 w-10 items-center justify-center rounded-full text-[#1F1F1F] transition hover:bg-[#EDF4E4] md:hidden"
                     >
                         {mobileOpen ? (
@@ -297,39 +352,53 @@ export default function StorefrontHeader() {
                 </div>
             </div>
 
-            {/* MOBILE MENU */}
+            {/* =========================================
+                MOBILE MENU
+            ========================================= */}
             {mobileOpen ? (
                 <div className="border-t border-[#E7E4DC] bg-[#FFFDF8] md:hidden">
                     <nav className="mx-auto max-w-7xl px-5 py-4 sm:px-6">
-                        <div className="flex flex-col">
+                        <div className="flex flex-col gap-1">
+
                             <Link
                                 href="/"
-                                onClick={closeMobileMenu}
-                                className="rounded-xl px-4 py-3 text-sm font-semibold text-[#1F1F1F] hover:bg-[#EDF4E4]"
+                                onClick={
+                                    closeMobileMenu
+                                }
+                                className="rounded-xl px-4 py-3 text-sm font-semibold text-[#1F1F1F] transition hover:bg-[#EDF4E4] hover:text-[#68912B]"
                             >
                                 Home
                             </Link>
 
                             <Link
                                 href="/products"
-                                onClick={closeMobileMenu}
-                                className="rounded-xl px-4 py-3 text-sm font-semibold text-[#1F1F1F] hover:bg-[#EDF4E4]"
+                                onClick={
+                                    closeMobileMenu
+                                }
+                                className="rounded-xl px-4 py-3 text-sm font-semibold text-[#1F1F1F] transition hover:bg-[#EDF4E4] hover:text-[#68912B]"
                             >
                                 Products
                             </Link>
 
                             <Link
                                 href="/products?new=true"
-                                onClick={closeMobileMenu}
-                                className="rounded-xl px-4 py-3 text-sm font-semibold text-[#1F1F1F] hover:bg-[#EDF4E4]"
+                                onClick={
+                                    closeMobileMenu
+                                }
+                                className="rounded-xl px-4 py-3 text-sm font-semibold text-[#1F1F1F] transition hover:bg-[#EDF4E4] hover:text-[#68912B]"
                             >
-                                🆕 New Products
+                                <span className="mr-2 text-[#68912B]">
+                                    ✦
+                                </span>
+                                New Products
                             </Link>
 
                             <Link
                                 href="/products?hot=true"
-                                onClick={closeMobileMenu}
-                                className="rounded-xl px-4 py-3 text-sm font-semibold text-[#1F1F1F] hover:bg-[#FFF0F0]"
+                                onClick={
+                                    closeMobileMenu
+                                }
+                                className="rounded-xl px-4 py-3 text-sm font-semibold text-[#1F1F1F] transition hover:bg-[#FFF0F0] hover:text-[#B22625]"
                             >
                                 🔥 Hot Products
                             </Link>

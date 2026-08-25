@@ -163,7 +163,7 @@ export default function HotProductsSlider({
                             product.name ||
                             "Loreshi FoodHub product"
                           }
-                          className="h-full w-full object-cover"
+                          className="h-full w-full  max-md:w-100 object-cover"
                         />
                       ) : (
                         <div className="flex h-full flex-col items-center justify-center">
