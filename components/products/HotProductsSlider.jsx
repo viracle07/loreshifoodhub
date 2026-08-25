@@ -222,7 +222,7 @@ export default function HotProductsSlider({
           type="button"
           onClick={previousSlide}
           aria-label="Previous hot products"
-          className="absolute left-0 top-1/2 z-20 flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-[#E7E4DC] bg-white text-2xl text-[#1F1F1F] shadow-lg transition hover:bg-[#EDF4E4] focus:outline-none focus:ring-2 focus:ring-[#68912B]"
+          className="absolute left-2 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-[#E7E4DC] bg-white text-2xl text-[#1F1F1F] shadow-lg transition hover:bg-[#EDF4E4] focus:outline-none focus:ring-2 focus:ring-[#68912B]"
         >
           <span aria-hidden="true">
             ‹
@@ -236,7 +236,7 @@ export default function HotProductsSlider({
           type="button"
           onClick={nextSlide}
           aria-label="Next hot products"
-          className="absolute right-0 top-1/2 z-20 flex h-11 w-11 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-[#E7E4DC] bg-white text-2xl text-[#1F1F1F] shadow-lg transition hover:bg-[#EDF4E4] focus:outline-none focus:ring-2 focus:ring-[#68912B]"
+          className="absolute right-2 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-[#E7E4DC] bg-white text-2xl text-[#1F1F1F] shadow-lg transition hover:bg-[#EDF4E4] focus:outline-none focus:ring-2 focus:ring-[#68912B]"
         >
           <span aria-hidden="true">
             ›

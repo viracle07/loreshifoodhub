@@ -67,21 +67,21 @@ export default async function Home() {
         </div>
 
         <div className="relative mx-auto max-w-7xl px-5 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
-          <div className="grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-8">
+         <div className="grid min-w-0 items-center gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-8">
 
             {/* =========================================
           LEFT CONTENT
       ========================================= */}
-            <div className="relative z-10 max-w-2xl">
+           <div className="relative z-10 min-w-0 max-w-2xl">
 
               {/* SMALL BADGE */}
               <FadeUp delay={0.05}>
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#D8DFB9] bg-white px-4 py-2 shadow-sm">
+                <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-[#D8DFB9] bg-white px-3 py-2 shadow-sm sm:px-4">
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EDF4E4]">
                     🌿
                   </span>
 
-                  <span className="text-xs font-bold uppercase tracking-[0.12em] text-[#68912B]">
+                  <span className="min-w-0 text-center text-[10px] font-bold uppercase leading-4 tracking-[0.08em] text-[#68912B] sm:text-xs sm:tracking-[0.12em]">
                     100% Quality • Natural • Fresh
                   </span>
                 </div>
@@ -183,10 +183,10 @@ export default async function Home() {
           HERO FOOD VISUAL
       ========================================= */}
 
-            <ScaleIn
-              delay={0.2}
-              className="relative -mt-8 sm:-mt-10 lg:-mt-14"
-            >
+           <ScaleIn
+  delay={0.2}
+  className="relative min-w-0 max-w-full -mt-8 sm:-mt-10 lg:-mt-14"
+>
 
               {/* Soft background shape */}
               <div
