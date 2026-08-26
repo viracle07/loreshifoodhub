@@ -154,7 +154,7 @@ export default function HotProductsSlider({
                     className="block h-full"
                   >
                     {/* Product image */}
-                    <div className="relative h-[150px] overflow-hidden bg-[#F5F3EC] sm:h-[180px] lg:aspect-[4/3] lg:h-auto">
+                    <div className="relative h-100 overflow-hidden bg-[#F5F3EC] sm:h-[280px] lg:aspect-[4/3] lg:h-auto">
                       {image?.url ? (
                         <img
                           src={image.url}
