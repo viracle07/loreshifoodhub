@@ -4,6 +4,9 @@ import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase/admin";
 import { getCurrentUser } from "@/lib/auth/session";
 
+import { findPaymentOrder } from "@/lib/payments/find-order";
+import { confirmPayment } from "@/lib/payments/confirmation";
+
 export async function POST(request) {
   try {
     const currentUser = await getCurrentUser();
@@ -59,17 +62,9 @@ export async function POST(request) {
      * Find the order using the payment
      * reference.
      */
-    const snapshot = await adminDb
-      .collection("orders")
-      .where(
-        "paymentReference",
-        "==",
-        reference
-      )
-      .limit(1)
-      .get();
+    const orderDoc = await findPaymentOrder(reference);
 
-    if (snapshot.empty) {
+    if (!orderDoc) {
       return NextResponse.json(
         {
           success: false,
@@ -79,9 +74,6 @@ export async function POST(request) {
         { status: 404 }
       );
     }
-
-    const orderDoc =
-      snapshot.docs[0];
 
     const order =
       orderDoc.data();
@@ -181,15 +173,13 @@ export async function POST(request) {
         reference;
 
     if (!paymentSuccessful) {
-      await orderDoc.ref.update({
-        paymentStatus:
-          transaction.status ===
-          "failed"
-            ? "failed"
-            : "unpaid",
-
-        updatedAt:
-          FieldValue.serverTimestamp(),
+      await adminDb.runTransaction(async (tx) => {
+        const latest = await tx.get(orderDoc.ref);
+        if (latest.data()?.paymentStatus === "paid" || latest.data()?.paymentReference !== reference) return;
+        tx.update(orderDoc.ref, {
+          paymentStatus: transaction.status === "failed" ? "failed" : "unpaid",
+          updatedAt: FieldValue.serverTimestamp(),
+        });
       });
 
       return NextResponse.json(
@@ -206,33 +196,7 @@ export async function POST(request) {
     /*
      * Payment is genuinely confirmed.
      */
-    await orderDoc.ref.update({
-      paymentStatus: "paid",
-
-      paymentMethod:
-        "online",
-
-      paymentTransactionId:
-        transaction.id
-          ? String(transaction.id)
-          : null,
-
-      paymentChannel:
-        transaction.channel ||
-        null,
-
-      paidAt:
-        FieldValue.serverTimestamp(),
-
-      /*
-       * Order moves forward only after
-       * verified payment.
-       */
-      status: "confirmed",
-
-      updatedAt:
-        FieldValue.serverTimestamp(),
-    });
+    const confirmed = await confirmPayment(orderDoc.ref, transaction, reference);
 
     return NextResponse.json({
       success: true,
@@ -248,8 +212,7 @@ export async function POST(request) {
         paymentStatus:
           "paid",
 
-        status:
-          "confirmed",
+        status: confirmed.status,
 
         total:
           Number(order.total || 0),

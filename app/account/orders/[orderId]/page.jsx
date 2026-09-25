@@ -1,4 +1,5 @@
 "use client";
+import ProductPrice from "@/components/products/ProductPrice";
 
 import PayOrderButton from "@/components/orders/PayOrderButton";
 
@@ -368,9 +369,7 @@ export default function OrderDetailsPage({
 
                     <div className="shrink-0 text-right">
                       <p className="text-sm font-semibold text-gray-500">
-                        {formatNaira(
-                          item.price
-                        )}{" "}
+                        <ProductPrice price={item.originalPrice ?? item.price} finalPrice={item.price} />{" "}
                         each
                       </p>
 

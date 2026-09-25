@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
+  async headers() {
+    return [{
+      source: "/admin-sw.js",
+      headers: [
+        { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
+        { key: "Service-Worker-Allowed", value: "/" },
+        { key: "Content-Type", value: "application/javascript; charset=utf-8" },
+      ],
+    }];
+  },
 };
-
 export default nextConfig;

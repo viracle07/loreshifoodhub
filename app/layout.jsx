@@ -1,4 +1,7 @@
 import "./globals.css";
+import { PricingProvider } from "@/components/products/PricingProvider";
+import { getPublicPricing } from "@/lib/pricing/service";
+import StorefrontOnly from "@/components/layout/StorefrontOnly";
 
 import { FirebaseProvider } from "@/lib/firebase/client-provider";
 import { AuthProvider } from "@/app/context/AuthContext";
@@ -8,6 +11,8 @@ import StorefrontHeader from "@/components/layout/StorefrontHeader";
 import StorefrontFooter from "@/components/layout/StorefrontFooter";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import { CartProvider } from "@/components/cart/CartProvider";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   metadataBase: new URL(
@@ -119,9 +124,10 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }) {
+  const initialPricing = await getPublicPricing();
   return (
     <html lang="en">
       <body>
@@ -129,15 +135,17 @@ export default function RootLayout({
 
         <FirebaseProvider>
           <AuthProvider>
+            <PricingProvider initialPricing={initialPricing}>
             <CartProvider>
-              <StorefrontHeader />
+              <StorefrontOnly><StorefrontHeader /></StorefrontOnly>
 
               {children}
 
-              <StorefrontFooter />
+              <StorefrontOnly><StorefrontFooter /></StorefrontOnly>
 
-              <WhatsAppButton />
+              <StorefrontOnly><WhatsAppButton /></StorefrontOnly>
             </CartProvider>
+            </PricingProvider>
           </AuthProvider>
         </FirebaseProvider>
       </body>

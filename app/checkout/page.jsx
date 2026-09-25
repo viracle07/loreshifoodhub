@@ -1,4 +1,5 @@
 "use client";
+import ProductPrice from "@/components/products/ProductPrice";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -23,7 +24,7 @@ function formatNaira(amount) {
 }
 
 export default function CheckoutPage() {
-    const { items, hydrated, itemCount, subtotal } =
+    const { items, hydrated, itemCount, subtotal, refreshCart } =
         useCart();
 
     const { user, loading: authLoading } =
@@ -150,6 +151,7 @@ export default function CheckoutPage() {
                     },
 
                     paymentMethod,
+                    expectedTotal: subtotal,
 
                     items: items.map((item) => ({
                         productId:
@@ -170,6 +172,7 @@ export default function CheckoutPage() {
             !response.ok ||
             !data.success
         ) {
+            if (response.status === 409) await refreshCart();
             throw new Error(
                 data.error ||
                     "Unable to create your order."
@@ -722,10 +725,10 @@ export default function CheckoutPage() {
                                     </div>
 
                                     <p className="shrink-0 text-sm font-bold text-[#1F1F1F]">
-                                        {formatNaira(
-                                            item.price *
-                                            item.quantity
-                                        )}
+                                        <ProductPrice
+                                            price={item.originalPrice * item.quantity}
+                                            finalPrice={Math.round(item.price * 100) * item.quantity / 100}
+                                        />
                                     </p>
                                 </div>
                             ))}

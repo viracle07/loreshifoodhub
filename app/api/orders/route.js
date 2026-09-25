@@ -4,6 +4,10 @@ import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase/admin";
 import { getCurrentUser } from "@/lib/auth/session";
 
+import { getPublicPricing } from "@/lib/pricing/service";
+import { sellingPrice } from "@/lib/pricing/money.mjs";
+import { notificationData } from "@/lib/notifications/events";
+
 function cleanString(value) {
   return typeof value === "string"
     ? value.trim()
@@ -165,6 +169,7 @@ const notes = cleanString(
      * from the browser.
      */
     const verifiedItems = [];
+    const pricing = await getPublicPricing();
 
     for (const submittedItem of submittedItems) {
       const productId =
@@ -282,9 +287,8 @@ const notes = cleanString(
         );
       }
 
-      const price = Number(
-        variant.price
-      );
+      const originalPrice = Number(variant.price);
+      const price = sellingPrice(originalPrice, pricing.active);
 
       if (
         !Number.isFinite(price) ||
@@ -323,9 +327,11 @@ const notes = cleanString(
         packageUnit:
           variant.packageUnit || "",
         price,
+        originalPrice,
+        discountPercent: pricing.active ? 10 : 0,
         quantity,
         lineTotal:
-          price * quantity,
+          Math.round(price * 100) * quantity / 100,
       });
     }
 
@@ -334,9 +340,9 @@ const notes = cleanString(
      */
     const subtotal = verifiedItems.reduce(
       (total, item) =>
-        total + item.lineTotal,
+        total + Math.round(item.lineTotal * 100),
       0
-    );
+    ) / 100;
 
     /*
      * Delivery fee will be calculated later.
@@ -345,6 +351,10 @@ const notes = cleanString(
 
     const total =
       subtotal + deliveryFee;
+
+    if (!Number.isFinite(body.expectedTotal) || Math.round(body.expectedTotal * 100) !== Math.round(total * 100)) {
+      return NextResponse.json({ success: false, error: "Prices have changed. Please review your updated cart and place the order again." }, { status: 409 });
+    }
 
     /*
      * 7. Generate order number
@@ -366,7 +376,8 @@ const notes = cleanString(
     /*
      * 8. Save order
      */
-    await orderRef.set({
+    const batch = adminDb.batch();
+    batch.set(orderRef, {
       orderNumber,
 
       userId: currentUser.uid,
@@ -402,6 +413,10 @@ const notes = cleanString(
       updatedAt:
         FieldValue.serverTimestamp(),
     });
+
+    batch.create(adminDb.collection("adminNotifications").doc(`order_${orderRef.id}`),
+      notificationData("order", orderRef.id, { orderNumber, total }));
+    await batch.commit();
 
     /*
      * 9. Return safe response

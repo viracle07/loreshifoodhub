@@ -286,12 +286,7 @@ const { user } = useAuth();
                       </div>
 
                       <p className="mt-3 text-lg font-bold text-[#B22625]">
-                        ₦
-                        {Number(
-                          variant.price || 0
-                        ).toLocaleString(
-                          "en-NG"
-                        )}
+                        <ProductPrice price={variant.price} />
                       </p>
                     </button>
                   );

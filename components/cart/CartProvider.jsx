@@ -11,6 +11,9 @@ import {
 
 import { useAuth } from "@/app/context/AuthContext";
 
+import { usePricing } from "@/components/products/PricingProvider";
+import { sellingPrice } from "@/lib/pricing/money.mjs";
+
 const CartContext = createContext(null);
 
 const CART_STORAGE_PREFIX =
@@ -20,6 +23,7 @@ export function CartProvider({ children }) {
   const { user, loading: authLoading } =
     useAuth();
 
+  const { active, refreshPricing } = usePricing();
   const [items, setItems] = useState([]);
   const [hydrated, setHydrated] =
     useState(false);
@@ -251,6 +255,31 @@ const removeFromCart = useCallback(
   setItems([]);
 }, []);
 
+  const refreshCart = useCallback(async () => {
+    const [response] = await Promise.all([
+      fetch("/api/products", { cache: "no-store" }), refreshPricing(),
+    ]);
+    const data = await response.json();
+    if (!response.ok || !data.success) throw new Error("Unable to refresh your cart.");
+    setItems((current) => current.map((item) => {
+      const product = data.products.find((p) => p.id === item.productId);
+      const variant = product?.variants?.find((v) => v.id === item.variantId);
+      return variant ? { ...item, price: Number(variant.price) } : item;
+    }));
+  }, [refreshPricing]);
+
+  useEffect(() => {
+    if (!hydrated || !user?.uid) return;
+    const refresh = () => { refreshCart().catch(() => {}); };
+    refresh();
+    window.addEventListener("focus", refresh);
+    return () => window.removeEventListener("focus", refresh);
+  }, [hydrated, user?.uid, refreshCart]);
+
+  const pricedItems = useMemo(() => items.map((item) => ({
+    ...item, originalPrice: Number(item.price), price: sellingPrice(item.price, active),
+  })), [items, active]);
+
   const itemCount = useMemo(
     () =>
       items.reduce(
@@ -263,17 +292,13 @@ const removeFromCart = useCallback(
 
   const subtotal = useMemo(
     () =>
-      items.reduce(
-        (total, item) =>
-          total +
-          item.price * item.quantity,
-        0
-      ),
-    [items]
+      pricedItems.reduce((total, item) => total + Math.round(item.price * 100) * item.quantity, 0) / 100,
+    [pricedItems]
   );
 
   const value = {
-    items,
+    items: pricedItems,
+    refreshCart,
     hydrated,
     itemCount,
     subtotal,

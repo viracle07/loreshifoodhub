@@ -2,13 +2,12 @@
   "name": "loreshi-foodhub",
   "version": "0.1.0",
   "private": true,
-
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test": "node --experimental-vm-modules --test tests/*.test.mjs"
   },
-
   "overrides": {
     "firebase-admin": {
       "jwks-rsa": {
@@ -16,7 +15,6 @@
       }
     }
   },
-
   "dependencies": {
     "cloudinary": "^2.10.1",
     "firebase": "^12.17.1",
@@ -28,7 +26,6 @@
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
-
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "tailwindcss": "^4"

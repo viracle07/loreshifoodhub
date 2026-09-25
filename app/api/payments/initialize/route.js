@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 
 import { adminDb } from "@/lib/firebase/admin";
@@ -165,7 +166,7 @@ export async function POST(request) {
      * 8. Create a unique payment reference
      */
     const reference =
-      `LORESHI-${orderId}-${Date.now()}`;
+      `LORESHI-${orderId}-${randomUUID()}`;
 
     /*
      * 9. Determine callback URL
@@ -182,6 +183,10 @@ export async function POST(request) {
     /*
      * 10. Initialize Paystack transaction
      */
+    await adminDb.collection("paymentAttempts").doc(reference).create({
+      orderId, total, userId: currentUser.uid, createdAt: new Date(),
+    });
+
     const paystackResponse =
       await fetch(
         "https://api.paystack.co/transaction/initialize",
@@ -258,7 +263,10 @@ export async function POST(request) {
      *
      * We DO NOT mark the order as paid.
      */
-    await orderRef.update({
+    await adminDb.runTransaction(async (tx) => {
+      const latest = await tx.get(orderRef);
+      if (latest.data()?.paymentStatus === "paid") return;
+      tx.update(orderRef, {
       paymentReference:
         reference,
 
@@ -270,6 +278,8 @@ export async function POST(request) {
 
       updatedAt:
         new Date(),
+    });
+
     });
 
     /*

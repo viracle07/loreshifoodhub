@@ -1,4 +1,5 @@
 "use client";
+import ProductPrice from "@/components/products/ProductPrice";
 
 import Link from "next/link";
 import {
@@ -188,9 +189,7 @@ export default function CartPage() {
                       {/* PRICE + QUANTITY */}
                       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                         <p className="text-sm font-bold text-[#B22625]">
-                          {formatNaira(
-                            item.price
-                          )}
+                          <ProductPrice price={item.originalPrice} />
                         </p>
 
                         <div className="flex items-center rounded-xl border border-[#E7E4DC]">

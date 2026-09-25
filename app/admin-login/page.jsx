@@ -1,4 +1,5 @@
 "use client";
+import AdminInstall from "@/components/admin/AdminInstall";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -162,6 +163,7 @@ if (
     <main className="min-h-screen bg-[#FFFDF8]">
       <div className="mx-auto flex min-h-screen max-w-md items-center px-5 py-12">
         <div className="w-full">
+          <div className="mb-6"><AdminInstall /></div>
           <div className="text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#B22625]">
               Loreshi FoodHub
